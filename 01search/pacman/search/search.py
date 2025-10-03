@@ -112,8 +112,29 @@ def depthFirstSearch(problem: SearchProblem):
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Border case where start state is the goal state
+    if problem.isGoalState(problem.getStartState()):
+        return problem.getStartState()
+
+    # General case of finiding optimal path
+    fringe = util.Queue() # Keep track of the fringe in the case of breadthfrist we use a queue
+    fringe.push((problem.getStartState(), [])) # Add the initials start, and its path
+    visited = [] # Keep thrack of the already visited states, to avoid deadlokc, infinite loops
+
+    while not fringe.isEmpty():
+        state, path = fringe.pop()
+        if state in visited:
+            continue
+        visited.append(state)
+
+        if problem.isGoalState(state):
+            return path
+
+        for successor, action, step_cost in problem.getSuccessors(state):
+            if successor not in visited:
+                fringe.push((successor, path + [action]))
+
+    return []
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
