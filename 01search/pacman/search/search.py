@@ -154,11 +154,11 @@ def uniformCostSearch(problem: SearchProblem):
             continue
         visited[state] = cost_so_far
 
-        if problem.isGoalState(state):
+        if problem.isGoalState(state): # This is the one, so end
             return path
 
         for successor, action, step_cost in problem.getSuccessors(state):
-            new_cost = cost_so_far + step_cost
+            new_cost = cost_so_far + step_cost # push the new cost to the quueue
             fringe.push((successor, path + [action], new_cost), new_cost)
 
     return []
