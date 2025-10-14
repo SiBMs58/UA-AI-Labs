@@ -17,10 +17,10 @@ if __name__ == '__main__':
     path = depthFirstSearch(rp)
     print(pretty(path), f" (steps={len(path)})\n")
 
-    # print('Missionaries&Cannibals BFS:')
-    # path = breadthFirstSearch(mc)
-    # print(pretty(path), f" (steps={len(path)})\n")
-    #
-    # print('Missionaries&Cannibals DFS:')
-    # path = depthFirstSearch(mc)
-    # print(pretty(path), f" (steps={len(path)})\n")
+    print('Missionaries&Cannibals BFS:')
+    path = breadthFirstSearch(mc)
+    print(pretty(path), f" (steps={len(path)})\n")
+
+    print('Missionaries&Cannibals DFS:')
+    path = depthFirstSearch(mc)
+    print(pretty(path), f" (steps={len(path)})\n")
