@@ -346,24 +346,45 @@ class CornersProblem(search.SearchProblem):
                 return 999999
         return len(actions)
 
-def cornersHeuristic(state: Any, problem: CornersProblem):
+def cornersHeuristic(state, problem):
     """
-    A heuristic for the CornersProblem that you defined.
+    A heuristic for the CornersProblem.
 
-      state:   The current search state
-               (a data structure you chose in your search problem)
-
-      problem: The CornersProblem instance for this layout.
-
-    This function should always return a number that is a lower bound on the
-    shortest path from the state to a goal of the problem; i.e.  it should be
-    admissible (as well as consistent).
+    Estimates the minimal remaining cost to visit all unvisited corners,
+    using Manhattan distance as a lower bound (admissible and consistent).
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    position, visited_mask = state
+    corners = problem.corners
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    # --- Collect unvisited corners ---
+    unvisited = [corner for i, corner in enumerate(corners)
+                 if not (visited_mask & (1 << i))]
+
+    if not unvisited:
+        return 0  # all corners already visited
+
+    # --- Heuristic idea ---
+    # Compute the minimal "spanning path" length:
+    # starting from current position, repeatedly go to the nearest remaining corner.
+    # This gives a tighter bound than just taking the farthest corner.
+    unvisited_copy = unvisited[:]
+    current_pos = position
+    total_dist = 0
+
+    while unvisited_copy:
+        # Find closest unvisited corner
+        dists = [abs(current_pos[0] - c[0]) + abs(current_pos[1] - c[1])
+                 for c in unvisited_copy]
+        min_dist = min(dists)
+        total_dist += min_dist
+
+        # Move to that corner (greedy approximation of minimal route)
+        closest_corner = unvisited_copy[dists.index(min_dist)]
+        current_pos = closest_corner
+        unvisited_copy.remove(closest_corner)
+
+    return total_dist
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
