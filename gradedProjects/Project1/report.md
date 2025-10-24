@@ -8,8 +8,6 @@
 
 ## (Un)Informed Search – Discuss Heuristic
 
-**Describe your heuristic for Question 1:**
-
 This heuristic estimates the remaining cost to collect all food by combining two metrics:
 
 1. **The distance to the nearest food:**  
@@ -37,23 +35,22 @@ _Intuitive explanation: It works like this: you start from one node, then look f
 
 ## Adversarial Search - Discuss evaluation function
 
-**Describe your evaluation function for question 4:**
-- Our **evaluation function** takes the following into account:
+Our **evaluation function** takes the following into account:
 
-  - **Avoid ghosts:**  
-    We look at where the ghosts are and compute their distances.  
-    - If a ghost is **scared**, we approach it, increasing the score proportionally (taking the timer into account responsively).  
-    - If a ghost is **not scared**, we stay away, decreasing the score proportionally to how close the ghost is (the closer it is, the stronger the penalty).  
-    - If a ghost is at the same position as Pacman (distance = 0), we immediately return `-∞` to avoid suicidal moves.
+- **Avoid ghosts:**  
+  We look at where the ghosts are and compute their distances.  
+  - If a ghost is **scared**, we approach it, increasing the score proportionally (taking the timer into account responsively).  
+  - If a ghost is **not scared**, we stay away, decreasing the score proportionally to how close the ghost is (the closer it is, the stronger the penalty).  
+  - If a ghost is at the same position as Pacman (distance = 0), we immediately return `-∞` to avoid suicidal moves.
 
-  - **Eat food:**  
-    Pacman is rewarded for being close to food pellets. The closer he is to the nearest food, the higher the score.
+- **Eat food:**  
+  Pacman is rewarded for being close to food pellets. The closer he is to the nearest food, the higher the score.
 
-  - **Eat capsules:**  
-    Similar to food, Pacman is rewarded for being closer to power capsules.
+- **Eat capsules:**  
+  Similar to food, Pacman is rewarded for being closer to power capsules.
 
-  - **Trade-off — Eating food vs. chasing ghosts:**  
-    We compute which option will yield a higher overall score and prioritize that action. If a scared ghost is reachable within the remaining timer window, chasing it is more profitable; otherwise, Pacman focuses on clearing food efficiently.
+- **Trade-off — Eating food vs. chasing ghosts:**  
+  We compute which option will yield a higher overall score and prioritize that action. If a scared ghost is reachable within the remaining timer window, chasing it is more profitable; otherwise, Pacman focuses on clearing food efficiently.
 
 ---
 
