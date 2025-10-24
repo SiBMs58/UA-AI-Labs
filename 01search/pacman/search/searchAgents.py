@@ -42,6 +42,7 @@ import util
 import time
 import search
 import pacman
+import heapq
 
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
@@ -477,8 +478,64 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    foods = foodGrid.asList()
+
+    # If no food left, already at goal, heuristic = 0
+    if not foods:
+        return 0
+
+    # Uses chanign true maze distances
+    info = problem.heuristicInfo
+    if 'maze_d' not in info:
+        info['maze_d'] = {}
+    maze_d = info['maze_d']
+
+    ########################################
+    #               Helpers                #
+    def ordered_pair(a, b):
+        return (a, b) if a <= b else (b, a)
+
+    def true_dist(a, b):
+        """Symmetric cached maze distance between grid points a and b."""
+        if a == b:
+            return 0
+        key = ordered_pair(a, b)
+        if key not in maze_d:
+            maze_d[key] = mazeDistance(a, b, problem.startingGameState)
+        return maze_d[key]
+    ##########################################
+
+    # 1. distance from Pacman to nearest food
+    nearest = min(true_dist(position, f) for f in foods)
+
+    # 2. MST "Minimum Spanning tree" over remaining foods (Prim's algorithm) using true maze distances (Note: the suggestio to use a minimum spanning tree came from opaAI's, chatGPT, the implementantion I did myself.)
+    # Only one food, no edges needed in the tree
+    if len(foods) == 1:
+        mst_cost = 0
+    else:
+        # Pick start node
+        start = foods[0]
+        in_tree = {start}
+        heap = []
+        # Push initiial edges (from start to all other foods)
+        for f in foods[1:]:
+            heapq.heappush(heap, (true_dist(start, f), start, f)) # chose heapq over regualar prioty queueu, for its performace (Priority queueu ensures safe communication between threads but right now overhead.)
+        mst_cost = 0
+        # Keep growing the tree until all food nodes are connected
+        while len(in_tree) < len(foods):
+            w, u, v = heapq.heappop(heap) # smallest edge from heap
+            if v in in_tree:
+                continue # skip edges to already connected nodes
+            mst_cost += w   # add this edge’s weight to MST total
+            in_tree.add(v) # include new node in tree
+
+            # Add edges from this new node to all nodes not yet in the tree
+            for wnode in foods:
+                if wnode not in in_tree:
+                    heapq.heappush(heap, (true_dist(v, wnode), v, wnode))
+
+    # h(state) = (distance from Pacman to the nearest food) + (Minimum Spanning Tree (MST) cost over all remaining foods)
+    return nearest + mst_cost
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
