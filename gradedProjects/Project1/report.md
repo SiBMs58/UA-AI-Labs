@@ -5,7 +5,6 @@
 **Student number:** s0222485
 
 
-
 ## (Un)Informed Search – Discuss Heuristic
 
 This heuristic estimates the remaining cost to collect all food by combining two metrics:
@@ -32,6 +31,7 @@ _Intuitive explanation: It works like this: you start from one node, then look f
   The “cheapest connection network” (MST) never suddenly becomes longer when you move, and the nearest-food distance can only shrink gradually.  
 
 **Note:** I found out that the heuristic I used during the exercises for Question 4 is inconsistent.
+
 
 ## Adversarial Search - Discuss evaluation function
 
