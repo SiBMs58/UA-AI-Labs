@@ -328,8 +328,53 @@ def betterEvaluationFunction(currentGameState: GameState):
 
     DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Basic state info
+    pos = currentGameState.getPacmanPosition()
+    foods = currentGameState.getFood().asList()
+    capsules = currentGameState.getCapsules()
+    ghostStates = currentGameState.getGhostStates()
+    score = currentGameState.getScore()
+
+    # Avoid ghost
+    for ghostState in ghostStates:
+        ghostPos = ghostState.getPosition()
+        gdist = manhattanDistance(pos, ghostPos)
+        if ghostState.scaredTimer > 0:
+            # Ghost is scared: approach it (but scaled by time responisvely)
+            score += ghostState.scaredTimer / (gdist + 1.0)
+        else:
+            # Ghost is not scared: avoid it
+            if gdist == 0:
+                return float('-inf')  # suicide
+            score -= 10.0 / (gdist + 1.0)
+
+    # Eat food
+    for foodPos in foods:
+        fdist = manhattanDistance(pos, foodPos)
+        score += 5.0 / (fdist + 1.0)
+
+    # Eat capsules
+    for pelletPos in capsules:
+        pdist = manhattanDistance(pos, pelletPos)
+        score += 1.0 / (pdist + 1.0)
+
+    # Trade of between eating food or chaing ghost, which is most profitable
+    nearest_scared = min((manhattanDistance(pos, g.getPosition()) for g in ghostStates if g.scaredTimer > 0), default=None)
+    max_scared = max((g.scaredTimer for g in ghostStates), default=0)
+
+    if nearest_scared is not None:
+        margin = max_scared - nearest_scared
+        if margin >= 2:
+            # Boost chasing: reachable while scared
+            score += 20.0 / (nearest_scared + 1.0)
+        else:
+            # Prefer food when not realistically reachable
+            pass  # keep your nearest-food bonus high here
+
+    score -= 0.1  # small per-state cost to keep moving
+
+    return score
+
 
 # Abbreviation
 better = betterEvaluationFunction

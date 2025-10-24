@@ -22,7 +22,7 @@ This heuristic estimates the remaining cost to collect all food by combining two
 
 _Intuitive explanation: It works like this: you start from one node, then look for the cheapest neighbor to connect to. From there, you keep exploring — each time choosing the cheapest possible new connection from the nodes you’ve already added. You repeat this process until all nodes are connected, without forming any loops._
 
-> h(state) = (1. distance from Pacman to the nearest food) ) + (2. Minimum Spanning Tree (MST) cost over all remaining foods)
+> h(state) = (1. distance from Pacman to the nearest food) + (2. Minimum Spanning Tree (MST) cost over all remaining foods)
 
 - **Admissibility:**  
   The heuristic never overestimates because Pacman must at least reach one food and then travel enough distance to connect all remaining foods.  
@@ -38,7 +38,22 @@ _Intuitive explanation: It works like this: you start from one node, then look f
 ## Adversarial Search - Discuss evaluation function
 
 **Describe your evaluation function for question 4:**
-- [short description here]
+- Our **evaluation function** takes the following into account:
+
+  - **Avoid ghosts:**  
+    We look at where the ghosts are and compute their distances.  
+    - If a ghost is **scared**, we approach it, increasing the score proportionally (taking the timer into account responsively).  
+    - If a ghost is **not scared**, we stay away, decreasing the score proportionally to how close the ghost is (the closer it is, the stronger the penalty).  
+    - If a ghost is at the same position as Pacman (distance = 0), we immediately return `-∞` to avoid suicidal moves.
+
+  - **Eat food:**  
+    Pacman is rewarded for being close to food pellets. The closer he is to the nearest food, the higher the score.
+
+  - **Eat capsules:**  
+    Similar to food, Pacman is rewarded for being closer to power capsules.
+
+  - **Trade-off — Eating food vs. chasing ghosts:**  
+    We compute which option will yield a higher overall score and prioritize that action. If a scared ghost is reachable within the remaining timer window, chasing it is more profitable; otherwise, Pacman focuses on clearing food efficiently.
 
 ---
 
