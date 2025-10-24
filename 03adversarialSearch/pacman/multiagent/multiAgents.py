@@ -210,8 +210,52 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        numAgents = gameState.getNumAgents()
+
+        def maxValue(state, alpha, beta, depth):
+            # Terminal test
+            if state.isWin() or state.isLose() or depth == self.depth:
+                return self.evaluationFunction(state), None
+
+            v = -float("inf")
+            bestAction = None
+
+            for action in state.getLegalActions(0):  # Pacman
+                successor = state.generateSuccessor(0, action)
+                score = minValue(successor, 1, alpha, beta, depth)
+                if score > v:
+                    v, bestAction = score, action
+                if v > beta:   # Beta cutoff
+                    return v, bestAction
+                alpha = max(alpha, v)
+
+            return v, bestAction
+
+        def minValue(state, agentIndex, alpha, beta, depth):
+            # Terminal test
+            if state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
+
+            v = float("inf")
+            nextAgent = (agentIndex + 1) % numAgents
+
+            for action in state.getLegalActions(agentIndex):
+                successor = state.generateSuccessor(agentIndex, action)
+                # Next agent wraps to Pacman → increase depth
+                if nextAgent == 0:
+                    score, _ = maxValue(successor, alpha, beta, depth + 1)
+                else:
+                    score = minValue(successor, nextAgent, alpha, beta, depth)
+                v = min(v, score)
+                if v < alpha:  # Alpha cutoff
+                    return v
+                beta = min(beta, v)
+
+            return v
+
+        _, action = maxValue(gameState, -float("inf"), float("inf"), 0)
+        return action
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
