@@ -269,8 +269,57 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         All ghosts should be modeled as choosing uniformly at random from their
         legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        numAgents = gameState.getNumAgents()
+
+        def value(state, agentIndex, depth):
+            # Terminal test
+            if depth == self.depth or state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
+
+            # Pseudocode: if the next agent is MAX → max-value; if EXP → exp-value
+            if agentIndex == 0:
+                return max_value(state, depth)
+            else:
+                return exp_value(state, agentIndex, depth)
+
+        def max_value(state, depth):
+            # def max-value(state): v = -∞; for each successor: v = max(v, value(successor))
+            actions = state.getLegalActions(0)
+            if not actions:
+                return self.evaluationFunction(state)
+
+            v = -float("inf")
+            for a in actions:
+                succ = state.generateSuccessor(0, a)
+                v = max(v, value(succ, 1, depth))   # next agent is first ghost, same ply
+            return v
+
+        def exp_value(state, agentIndex, depth):
+            # def exp-value(state): v = 0; for each successor: v += p * value(successor); return v
+            actions = state.getLegalActions(agentIndex)
+            if not actions:
+                return self.evaluationFunction(state)
+
+            p = 1.0 / len(actions)  # uniform randomness
+            v = 0.0
+            nextAgent = (agentIndex + 1) % numAgents
+            nextDepth = depth + 1 if nextAgent == 0 else depth  # increase depth after last ghost
+
+            for a in actions:
+                succ = state.generateSuccessor(agentIndex, a)
+                v += p * value(succ, nextAgent, nextDepth)
+            return v
+
+        # Choose the maximizing action at the root
+        bestScore = -float("inf")
+        bestAction = None
+        for a in gameState.getLegalActions(0):
+            succ = gameState.generateSuccessor(0, a)
+            score = value(succ, 1, 0)  # first ghost moves next, depth still 0
+            if score > bestScore or bestAction is None:
+                bestScore, bestAction = score, a
+
+        return bestAction
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
