@@ -17,7 +17,7 @@ This heuristic estimates the remaining cost to collect all food by combining two
    Once Pacman is near the food area, he’ll still have to travel between all the food dots to eat them.  
    The cheapest way to connect all those dots, without worrying about the exact order, is what a Minimum Spanning Tree (MST) represents.
 
-_Intuitive explanation: It works like this: you start from one node, then look for the cheapest neighbor to connect to. From there, you keep exploring — each time choosing the cheapest possible new connection from the nodes you’ve already added. You repeat this process until all nodes are connected, without forming any loops._
+_Intuitive explanation: It works like this: you start from one node, then look for the cheapest neighbor to connect to. From there, you keep exploring, each time choosing the cheapest possible new connection from the nodes you’ve already added. You repeat this process until all nodes are connected, without forming any loops._
 
 > h(state) = (1. distance from Pacman to the nearest food) + (2. Minimum Spanning Tree (MST) cost over all remaining foods)
 
@@ -49,7 +49,7 @@ Our **evaluation function** takes the following into account:
 - **Eat capsules:**  
   Similar to food, Pacman is rewarded for being closer to power capsules.
 
-- **Trade-off — Eating food vs. chasing ghosts:**  
+- **Trade-off: Eating food vs. chasing ghosts:**  
   We compute which option will yield a higher overall score and prioritize that action. If a scared ghost is reachable within the remaining timer window, chasing it is more profitable; otherwise, Pacman focuses on clearing food efficiently.
 
 ---
