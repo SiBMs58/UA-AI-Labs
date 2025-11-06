@@ -73,6 +73,49 @@ def likelihood_weighting(bn: DiscreteBN, query, evidence, N, rng):
         float: An estimate of P(query | evidence)
                (Normalized weighted probability for the query variable being its target value.)
     """
-    """TODO: implement this function"""
+    query_var, query_val = query
 
-    raise NotImplementedError
+    # We'll keep weighted counts per value of the query variable
+    counts = {v: 0.0 for v in bn.states[query_var]}
+
+    # Found an algo online that was straightforward: https://www.geeksforgeeks.org/artificial-intelligence/likelihood-weighting-in-artificial-intelligence/
+    # 1) Initialize / Repeat: generate N weighted samples
+    for _ in range(N):
+        sample = {}
+        weight = 1.0
+
+        # 2) Sample variables in topological order
+        for var in bn.topo_order:
+            parent_asg = {p: sample[p] for p in bn.parents[var]}
+
+            if var in evidence:
+                # observed: fix value and multiply weight by likelihood
+                val = evidence[var]
+                sample[var] = val
+                prob = bn.local_prob(var, val, parent_asg)
+                weight *= prob
+            else:
+                # not observed: sample from P(var | parents)
+                values = bn.states[var]
+                probs = [bn.local_prob(var, v, parent_asg) for v in values]
+
+                r = rng.random()
+                cum = 0.0
+                chosen = values[-1]
+                for v, p in zip(values, probs):
+                    cum += p
+                    if r <= cum:
+                        chosen = v
+                        break
+                sample[var] = chosen
+
+        # 3) Store the sample (accumulate weight for the query value)
+        counts[sample[query_var]] += weight
+
+    # 4) total weight
+    total_weight = sum(counts.values())
+
+    # 5) normalize to get P(query_var = query_val | evidence)
+    if total_weight == 0.0:
+        return 0.0
+    return counts[query_val] / total_weight
