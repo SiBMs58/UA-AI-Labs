@@ -20,7 +20,7 @@ def main():
     ap.add_argument("--N", type=int, default=1000, help="Samples per run")
     ap.add_argument("--qvar", type=str, default="either", help="Query variable")
     ap.add_argument("--qval", type=str, default="yes", help="Query value")
-    ap.add_argument("--e", action="append", default=["xray=yes"], help="Evidence as Var=val (repeatable)")
+    ap.add_argument("--e", action="append", default=[], help="Evidence as Var=val (repeatable)")
     ap.add_argument("--runs", type=int, default=10, help="Number of runs for averaging")
     args = ap.parse_args()
 
